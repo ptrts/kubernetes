@@ -100,6 +100,9 @@ func (m *podContainerManagerImpl) EnsureExists(pod *v1.Pod) error {
 // GetPodContainerName returns the CgroupName identifier, and its literal cgroupfs form on the host.
 func (m *podContainerManagerImpl) GetPodContainerName(pod *v1.Pod) (CgroupName, string) {
 	podQOS := v1qos.GetPodQOS(pod)
+
+	klog.V(1).InfoS("(m *podContainerManagerImpl) GetPodContainerName", "podUID", pod.UID, "podQOS", podQOS)
+
 	// Get the parent QOS container name
 	var parentContainer CgroupName
 	switch podQOS {
@@ -110,12 +113,22 @@ func (m *podContainerManagerImpl) GetPodContainerName(pod *v1.Pod) (CgroupName, 
 	case v1.PodQOSBestEffort:
 		parentContainer = m.qosContainersInfo.BestEffort
 	}
+
+	klog.V(1).InfoS("(m *podContainerManagerImpl) GetPodContainerName", "podUID", pod.UID, "parentContainer", parentContainer)
+
 	podContainer := GetPodCgroupNameSuffix(pod.UID)
+
+	klog.V(1).InfoS("(m *podContainerManagerImpl) GetPodContainerName", "podUID", pod.UID, "podContainer", podContainer)
 
 	// Get the absolute path of the cgroup
 	cgroupName := NewCgroupName(parentContainer, podContainer)
+
+	klog.V(1).InfoS("(m *podContainerManagerImpl) GetPodContainerName", "podUID", pod.UID, "cgroupName", cgroupName)
+
 	// Get the literal cgroupfs name
 	cgroupfsName := m.cgroupManager.Name(cgroupName)
+
+	klog.V(1).InfoS("(m *podContainerManagerImpl) GetPodContainerName", "podUID", pod.UID, "cgroupfsName", cgroupfsName)
 
 	return cgroupName, cgroupfsName
 }

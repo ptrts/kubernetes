@@ -26,6 +26,7 @@ import (
 	"github.com/opencontainers/runc/libcontainer/cgroups/fscommon"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/klog/v2"
 )
 
 const cgroupv1MemLimitFile string = "memory.limit_in_bytes"
@@ -87,6 +88,7 @@ func (c *cgroupV1impl) Validate(name CgroupName) error {
 
 // Exists checks if all subsystem cgroups already exist
 func (c *cgroupV1impl) Exists(name CgroupName) bool {
+	klog.V(1).InfoS("(c *cgroupV1impl) Exists", "name", name)
 	return c.Validate(name) == nil
 }
 

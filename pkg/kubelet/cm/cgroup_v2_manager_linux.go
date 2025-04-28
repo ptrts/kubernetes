@@ -27,6 +27,7 @@ import (
 	"github.com/opencontainers/runc/libcontainer/cgroups/fscommon"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/klog/v2"
 	cmutil "k8s.io/kubernetes/pkg/kubelet/cm/util"
 )
 
@@ -55,12 +56,24 @@ func (c *cgroupV2impl) Version() int {
 // Validate checks if all subsystem cgroups are valid
 func (c *cgroupV2impl) Validate(name CgroupName) error {
 	cgroupPath := c.buildCgroupUnifiedPath(name)
+
+	klog.V(1).InfoS("(c *cgroupV2impl) Validate", "cgroupPath", cgroupPath)
+
 	neededControllers := getSupportedUnifiedControllers()
+
+	klog.V(1).InfoS("(c *cgroupV2impl) Validate", "neededControllers", neededControllers)
+
 	enabledControllers, err := readUnifiedControllers(cgroupPath)
 	if err != nil {
 		return fmt.Errorf("could not read controllers for cgroup %q: %w", name, err)
 	}
+
+	klog.V(1).InfoS("(c *cgroupV2impl) Validate", "enabledControllers", enabledControllers)
+
 	difference := neededControllers.Difference(enabledControllers)
+
+	klog.V(1).InfoS("(c *cgroupV2impl) Validate", "difference", difference)
+
 	if difference.Len() > 0 {
 		return fmt.Errorf("cgroup %q has some missing controllers: %v", name, strings.Join(sets.List(difference), ", "))
 	}
@@ -69,7 +82,10 @@ func (c *cgroupV2impl) Validate(name CgroupName) error {
 
 // Exists checks if all subsystem cgroups already exist
 func (c *cgroupV2impl) Exists(name CgroupName) bool {
-	return c.Validate(name) == nil
+	klog.V(1).InfoS("(c *cgroupV2impl) Exists", "name", name)
+	err := c.Validate(name)
+	klog.V(1).InfoS("(c *cgroupV2impl) Exists", "err", err)
+	return err == nil
 }
 
 // MemoryUsage returns the current memory usage of the specified cgroup,
