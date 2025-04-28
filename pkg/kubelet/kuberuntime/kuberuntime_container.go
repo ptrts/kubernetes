@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"regexp"
 	goruntime "runtime"
+	"runtime/debug"
 	"sort"
 	"strconv"
 	"strings"
@@ -808,6 +809,8 @@ func (m *kubeGenericRuntimeManager) killContainer(ctx context.Context, pod *v1.P
 
 	klog.V(2).InfoS("Killing container with a grace period", "pod", klog.KObj(pod), "podUID", pod.UID,
 		"containerName", containerName, "containerID", containerID.String(), "gracePeriod", gracePeriod)
+
+	klog.V(2).InfoS("failed to do something", "stack", string(debug.Stack()))
 
 	err := m.runtimeService.StopContainer(ctx, containerID.ID, gracePeriod)
 	if err != nil && !crierror.IsNotFound(err) {
