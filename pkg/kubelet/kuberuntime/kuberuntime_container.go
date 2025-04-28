@@ -60,6 +60,7 @@ import (
 	"k8s.io/kubernetes/pkg/kubelet/util/format"
 	"k8s.io/kubernetes/pkg/util/tail"
 	volumeutil "k8s.io/kubernetes/pkg/volume/util"
+	logutils "k8s.io/kubernetes/pkg/kubelet/logs/utils"
 )
 
 var (
@@ -810,7 +811,7 @@ func (m *kubeGenericRuntimeManager) killContainer(ctx context.Context, pod *v1.P
 	klog.V(2).InfoS("Killing container with a grace period", "pod", klog.KObj(pod), "podUID", pod.UID,
 		"containerName", containerName, "containerID", containerID.String(), "gracePeriod", gracePeriod)
 
-	klog.V(2).InfoS("failed to do something", "stack", string(debug.Stack()))
+	logutils.LogAllGoroutines()
 
 	err := m.runtimeService.StopContainer(ctx, containerID.ID, gracePeriod)
 	if err != nil && !crierror.IsNotFound(err) {
