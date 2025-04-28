@@ -27,7 +27,6 @@ import (
 	"path/filepath"
 	"regexp"
 	goruntime "runtime"
-	"runtime/debug"
 	"sort"
 	"strconv"
 	"strings"
