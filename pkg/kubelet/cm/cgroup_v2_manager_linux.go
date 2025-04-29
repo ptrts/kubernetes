@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -159,18 +158,25 @@ func getSupportedUnifiedControllers() sets.Set[string] {
 		if err != nil {
 			panic(fmt.Errorf("cannot read cgroup controllers at %s", cmutil.CgroupRoot))
 		}
+		klog.V(1).InfoS("ptrts: getSupportedUnifiedControllers. availableRootControllersOnce.Do", "availableRootControllers", availableRootControllers)
 	})
+
+	klog.V(1).InfoS("ptrts: getSupportedUnifiedControllers", "availableRootControllers", availableRootControllers)
 	// Return the set of controllers that are supported both by the Kubelet and by the kernel
 	return supportedControllers.Intersection(availableRootControllers)
 }
 
 // readUnifiedControllers reads the controllers available at the specified cgroup
 func readUnifiedControllers(path string) (sets.Set[string], error) {
-	controllersFileContent, err := os.ReadFile(filepath.Join(path, "cgroup.controllers"))
+	path2 := filepath.Join(path, "cgroup.controllers")
+	klog.V(1).InfoS("ptrts: readUnifiedControllers", "path2", path2)
+	controllersFileContent, err := os.ReadFile(path2)
 	if err != nil {
 		return nil, err
 	}
+	klog.V(1).InfoS("ptrts: readUnifiedControllers", "controllersFileContent", controllersFileContent)
 	controllers := strings.Fields(string(controllersFileContent))
+	klog.V(1).InfoS("ptrts: readUnifiedControllers", "controllers", controllers)
 	return sets.New(controllers...), nil
 }
 
